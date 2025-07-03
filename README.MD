@@ -167,7 +167,7 @@ python main.py firebird_to_sql regras_clientes.json
     {
       "destino": "DFnome",
       "origem": "NOME",
-      "normalizar": "texto_simples"
+      "normalizar": "true"
     },
     {
       "destino": "DFcnpj_cpf",
@@ -184,12 +184,12 @@ python main.py firebird_to_sql regras_clientes.json
     {
       "destino": "DFinscr_estadual",
       "origem": "IE",
-      "normalizar": "texto_simples"
+      "normalizar": "true"
     },
     {
       "destino": "DFdata_inativacao",
       "origem": "DATADESATIVADO",
-      "normalizar": "data_sem_hora"
+      "normalizar": "true"
     }
   ]
 }
