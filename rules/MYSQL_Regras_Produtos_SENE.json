@@ -1,0 +1,129 @@
+{
+  "entidade": "Produto",
+  "primary_key": [
+    "DFcod_item_estoque",
+    "CODITEM"
+  ],
+  "source_table": "produto",
+  "target_table": "TBitem_estoque",
+  "source_query": "SELECT p.CODITEM, p.DESCRICAO, p.ATIVO, p.CADASTRADO, p.VALIDADE, p.BALANCA, p.CEST, p.NCM, p.ITM_TAB_EXCLUSAO, p.PISVENDAS, p.COFINSVENDAS, p.PIS, p.COFINS, p.ID_TIPOITEM, p.ID_GENERO, e.QTD, p.CUSTO, p.CUSTOLIQUIDO, p.CUSTOMEDIO, p.UNITARIO, p.UNIDADE, GROUP_CONCAT(p.CODIGO SEPARATOR ';') AS CODIGO FROM produto p LEFT JOIN estoques e ON e.ID_PRODUTO = p.CODITEM GROUP BY p.CODITEM, p.DESCRICAO, p.ATIVO, p.CADASTRADO, p.VALIDADE, p.BALANCA, p.CEST, p.NCM, p.ITM_TAB_EXCLUSAO, p.PISVENDAS, p.COFINSVENDAS, p.PIS, p.COFINS, p.ID_TIPOITEM, p.ID_GENERO, e.QTD, p.CUSTO, p.CUSTOLIQUIDO, p.CUSTOMEDIO, p.UNITARIO, p.UNIDADE",
+  "target_query": "SELECT i.DFcod_item_estoque, i.DFdescricao, i.DFativo_inativo, i.DFdata_cadastro, a.DFvalidade_pesaveis, i.DFpeso_variavel, a.DFcod_cest, a.DFcod_classificacao_fiscal, a.DFcod_cst_pis, a.DFcod_cst_cofins, a.DFcod_cst_pis_entrada, a.DFcod_cst_cofins_entrada, n.DFcod_natureza_receita_pis_cofins, a.DFcod_tipo_item, a.DFcod_genero, preco.DFcusto_real, preco.DFcusto_real_ce, preco.DFcusto_contabil, preco.DFcusto_medio, preco.DFpreco_venda, estoque.DFquantidade_Atual, unidade.DFsigla_unidade_edi, codigo.DFcodigo_barra FROM TBitem_estoque i LEFT JOIN TBitem_estoque_atacado_varejo a ON a.DFcod_item_estoque_atacado_varejo = i.DFcod_item_estoque LEFT JOIN tbnatureza_receita_pis_cofins n ON a.DFid_natureza_receita_pis_cofins = n.DFid_natureza_receita_pis_cofins LEFT JOIN (SELECT uie.DFcod_item_estoque, MAX(uiep.DFcusto_real) AS DFcusto_real, MAX(uiep.DFcusto_real_ce) AS DFcusto_real_ce, MAX(uiep.DFcusto_contabil) AS DFcusto_contabil, MAX(uiep.DFcusto_medio) AS DFcusto_medio, MAX(uiep.DFpreco_venda) AS DFpreco_venda FROM TBunidade_item_estoque uie LEFT JOIN TBunidade_item_estoque_preco uiep ON uiep.DFid_unidade_item_estoque = uie.DFid_unidade_item_estoque WHERE uiep.DFcod_empresa = 1 GROUP BY uie.DFcod_item_estoque) preco ON preco.DFcod_item_estoque = i.DFcod_item_estoque LEFT JOIN (SELECT uie.DFcod_item_estoque, MAX(u.DFsigla_unidade_edi) AS DFsigla_unidade_edi FROM TBunidade_item_estoque uie LEFT JOIN TBunidade u ON u.DFcod_unidade = uie.DFcod_unidade GROUP BY uie.DFcod_item_estoque) unidade ON unidade.DFcod_item_estoque = i.DFcod_item_estoque LEFT JOIN (SELECT uie.DFcod_item_estoque, STRING_AGG(cb.DFcodigo_barra, ';') AS DFcodigo_barra FROM TBunidade_item_estoque uie LEFT JOIN TBcodigo_barra cb ON cb.DFid_unidade_item_estoque = uie.DFid_unidade_item_estoque GROUP BY uie.DFcod_item_estoque) codigo ON codigo.DFcod_item_estoque = i.DFcod_item_estoque LEFT JOIN (SELECT uie.DFcod_item_estoque, MAX(he.DFquantidade_Atual) AS DFquantidade_Atual FROM TBunidade_item_estoque uie LEFT JOIN TBhistorico_estoque he ON he.DFid_unidade_item_estoque = uie.DFid_unidade_item_estoque WHERE he.DFcod_empresa = 1 GROUP BY uie.DFcod_item_estoque) estoque ON estoque.DFcod_item_estoque = i.DFcod_item_estoque WHERE i.DFcod_item_estoque IS NOT NULL AND unidade.DFsigla_unidade_edi IN ('KG','UN','LT','MT','SC')",
+  "campos": {
+    "DFcod_item_estoque": {
+      "source_column": "CODITEM",
+      "comparador": "default",
+      "normalizar": true
+    },
+    "DFdescricao": {
+      "source_column": "DESCRICAO",
+      "comparador": "default",
+      "observacao": "Compara nome ignorando espaços e caracteres especiais",
+      "normalizar": true
+    },
+    "DFativo_inativo": {
+      "source_column": "ATIVO",
+      "comparador": "bool_sql_ativo",
+      "normalizar": true
+    },
+    "DFdata_cadastro": {
+      "source_column": "CADASTRADO",
+      "comparador": "data_sem_hora",
+      "normalizar": true
+    },
+    "DFvalidade_pesaveis": {
+      "source_column": "VALIDADE",
+      "comparador": "numero_null_igual_zero",
+      "normalizar": true
+    },
+    "DFpeso_variavel": {
+      "source_column": "BALANCA",
+      "comparador": "bool_sql_peso_variavel",
+      "normalizar": true
+    },
+    "DFcod_cest": {
+      "source_column": "CEST",
+      "comparador": "numero_string",
+      "normalizar": true
+    },
+    "DFcod_classificacao_fiscal": {
+      "source_column": "NCM",
+      "comparador": "numero_string",
+      "normalizar": true
+    },
+    "DFcod_natureza_receita_pis_cofins": {
+      "source_column": "ITM_TAB_EXCLUSAO",
+      "comparador": "numero_string",
+      "normalizar": true
+    },
+    "DFcod_cst_pis": {
+      "source_column": "PISVENDAS",
+      "comparador": "numero_string",
+      "normalizar": true
+    },
+    "DFcod_cst_cofins": {
+      "source_column": "COFINSVENDAS",
+      "comparador": "numero_string",
+      "normalizar": true
+    },
+    "DFcod_cst_pis_entrada": {
+      "source_column": "PIS",
+      "comparador": "numero_string",
+      "normalizar": true
+    },
+    "DFcod_cst_cofins_entrada": {
+      "source_column": "COFINS",
+      "comparador": "numero_string",
+      "normalizar": true
+    },
+    "DFcod_tipo_item": {
+      "source_column": "ID_TIPOITEM",
+      "comparador": "default",
+      "normalizar": true
+    },
+    "DFcod_genero": {
+      "source_column": "ID_GENERO",
+      "comparador": "default",
+      "normalizar": true
+    },
+    "DFquantidade_Atual": {
+      "source_column": "QTD",
+      "comparador": "numero_decimal_aproximado_3, numero_null_igual_zero",
+      "normalizar": true
+    },
+    "DFcusto_real": {
+      "source_column": "CUSTOREAL",
+      "comparador": "decimal_tolerancia",
+      "normalizar": true
+    },
+    "DFcusto_real_ce": {
+      "source_column": "CUSTO",
+      "comparador": "decimal_tolerancia",
+      "normalizar": true
+    },
+    "DFcusto_contabil": {
+      "source_column": "CUSTOLIQUIDO",
+      "comparador": "decimal_tolerancia",
+      "normalizar": true
+    },
+    "DFcusto_medio": {
+      "source_column": "CUSTOMEDIO",
+      "comparador": "decimal_tolerancia",
+      "normalizar": true
+    },
+    "DFpreco_venda": {
+      "source_column": "UNITARIO",
+      "comparador": "decimal_tolerancia",
+      "normalizar": true
+    },
+    "DFsigla_unidade_edi": {
+      "source_column": "UNIDADE",
+      "comparador": "case_insensitive",
+      "normalizar": true
+    },
+    "DFcodigo_barra": {
+      "source_column": "CODIGO",
+      "comparador": "multiplos_codigos_todos_presentes",
+      "normalizar": true
+    }
+  }
+}

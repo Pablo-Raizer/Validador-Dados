@@ -1,0 +1,68 @@
+{
+  "entidade": "Cliente",
+  "primary_key": [
+    "DFcod_cliente",
+    "CHAVEPES"
+  ],
+  "source_table": "VPESSOA",
+  "target_table": "TBCLIENTE",
+  "source_query": "SELECT * FROM VPESSOA WHERE CLIENTE = 'S'",
+  "target_query": "SELECT * FROM TBCLIENTE",
+  "campos": {
+    "DFcod_cliente": {
+      "source_column": "CHAVEPES",
+      "comparador": "default",
+      "normalizar": true
+    },
+    "DFdata_inativacao": {
+      "source_column": "ATIVO",
+      "comparador": "data_inativacao_logica",
+      "normalizar": false
+    },
+    "DFdata_cadastro": {
+      "source_column": "CADASTRO",
+      "comparador": "data_sem_hora",
+      "normalizar": true
+    },
+    "DFnome": {
+      "source_column": "NOME",
+      "comparador": "default",
+      "observacao": "Compara nome ignorando espaços extras",
+      "normalizar": true
+    },
+    "DFcnpj_cpf": {
+      "source_column": [
+        "CPF",
+        "CNPJ"
+      ],
+      "comparador": "default",
+      "condicao": {
+        "TIPOFISCAL": {
+          "F": "CPF",
+          "J": "CNPJ"
+        }
+      },
+      "normalizar": true
+    },
+    "DFinscr_estadual": {
+      "source_column": "IE",
+      "comparador": "ie_equivalente",
+      "normalizar": true
+    },
+    "DFcarteira_identidade": {
+      "source_column": "RG",
+      "comparador": "default",
+      "normalizar": true
+    },
+    "DFfisico_juridico": {
+      "source_column": "TIPOFISCAL",
+      "comparador": "default",
+      "normalizar": true
+    },
+    "DFlimite_credito": {
+      "source_column": "LIMITECREDITO",
+      "comparador": "numero_decimal_aproximado_2",
+      "normalizar": true
+    }
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "primary_key": [
+    "DFcod_fornecedor",
+    "CHAVEPES"
+  ],
+  "entidade": "Fornecedor",
+  "source_table": "VPESSOA",
+  "target_table": "TBFORNECEDOR",
+  "source_query": "SELECT * FROM VPESSOA WHERE FORNECEDOR = 'S'",
+  "target_query": "SELECT * FROM TBFORNECEDOR",
+  "campos": {
+    "DFnome": {
+      "source_column": "NOME",
+      "comparador": "default",
+      "observacao": "Compara nome ignorando espaços extras"
+    },
+    "DFcgc": {
+      "source_column": [
+        "CPF",
+        "CNPJ"
+      ],
+      "condicao": {
+        "TIPOFISCAL": {
+          "F": "CPF",
+          "J": "CNPJ"
+        }
+      },
+      "comparador": "default"
+    },
+    "DFinscr_estadual": {
+      "source_column": "IE",
+      "comparador": "ie_equivalente"
+    },
+    "DFdata_inativacao": {
+      "source_column": "ATIVO",
+      "comparador": "data_inativacao_logica"
+    },
+    "DFcod_fornecedor": {
+      "source_column": "CHAVEPES",
+      "comparador": "default"
+    }
+  }
+}

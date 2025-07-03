@@ -1,0 +1,39 @@
+# Bytecode Python
+__pycache__/
+*.py[cod]
+
+# Ambientes virtuais (caso crie)
+venv/
+.env/
+*.env
+
+# Arquivos sensíveis
+config/google_credentials.json
+config/credentials.py
+
+# Executáveis e scripts gerados
+*.bat
+*.exe
+
+# Pastas de output
+/data/output/
+dist/
+build/
+
+# Logs e arquivos temporários
+*.log
+*.tmp
+*.bak
+*.swp
+
+# Editor/IDE
+.vscode/
+.idea/
+
+# Arquivos do macOS e Windows
+.DS_Store
+Thumbs.db
+
+# Excel e CSV gerados
+*.xlsx
+*.csv

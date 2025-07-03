@@ -1,0 +1,58 @@
+{
+  "entidade": "Fornecedor",
+  "primary_key": [
+    "DFcod_fornecedor",
+    "CHAVEPES"
+  ],
+  "source_table": "VPESSOA",
+  "target_table": "TBFORNECEDOR",
+  "source_query": "SELECT * FROM VPESSOA WHERE FORNECEDOR = 'S'",
+  "target_query": "SELECT * FROM TBFORNECEDOR",
+  "campos": {
+    "DFnome": {
+      "source_column": "NOME",
+      "comparador": "default",
+      "observacao": "Compara nome ignorando espaços extras",
+      "normalizar": true
+    },
+    "DFcgc": {
+      "source_column": [
+        "CPF",
+        "CNPJ"
+      ],
+      "comparador": "default",
+      "condicao": {
+        "TIPOFISCAL": {
+          "F": "CPF",
+          "J": "CNPJ"
+        }
+      },
+      "normalizar": true
+    },
+    "DFinscr_estadual": {
+      "source_column": "IE",
+      "comparador": "ie_equivalente",
+      "normalizar": true
+    },
+    "DFdata_inativacao": {
+      "source_column": "ATIVO",
+      "comparador": "data_inativacao_logica",
+      "normalizar": false
+    },
+    "DFcod_fornecedor": {
+      "source_column": "CHAVEPES",
+      "comparador": "default",
+      "normalizar": true
+    },
+    "DFdata_cadastro": {
+      "source_column": "CADASTRO",
+      "comparador": "data_sem_hora",
+      "normalizar": true
+    },
+    "DFfisico_juridico": {
+      "source_column": "TIPOFISCAL",
+      "comparador": "default",
+      "normalizar": true
+    }
+  }
+}
