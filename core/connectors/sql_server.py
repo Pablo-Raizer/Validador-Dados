@@ -8,7 +8,7 @@ class SQLServerConnector(BaseConnector):
         self.conn = None
         self.connection_string = (
             f"DRIVER={{ODBC Driver 17 for SQL Server}};"
-            f"SERVER={config['server']};"
+            f"Server={config['Server']};"
             f"DATABASE={config['database']};"
             f"UID={config['user']};"
             f"PWD={config['password']}"

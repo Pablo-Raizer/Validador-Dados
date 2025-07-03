@@ -1,0 +1,58 @@
+{
+  "entidade": "Fornecedor",
+  "primary_key": [
+    "DFcod_fornecedor",
+    "FOR_SEQ"
+  ],
+  "source_table": "ECF_FORNECEDOR",
+  "target_table": "TBFORNECEDOR",
+  "source_query": "SELECT * FROM ECF_FORNECEDOR",
+  "target_query": "SELECT * FROM TBFORNECEDOR",
+  "campos": {
+    "DFcod_fornecedor": {
+      "source_column": "FOR_SEQ",
+      "comparador": "default",
+      "normalizar": true
+    },
+    "DFdata_inativacao": {
+      "source_column": "FOR_STATUS",
+      "comparador": "data_inativacao_logica",
+      "normalizar": false
+    },
+    "DFdata_cadastro": {
+      "source_column": "FOR_DAT_INC",
+      "comparador": "data_sem_hora",
+      "normalizar": true
+    },
+    "DFnome": {
+      "source_column": "FOR_NOM",
+      "comparador": "default",
+      "observacao": "Compara nome ignorando espaços extras",
+      "normalizar": true
+    },
+    "DFcgc": {
+      "source_column": [
+        "CPF",
+        "CNPJ"
+      ],
+      "comparador": "numero_string",
+      "normalizar": true
+    },
+    "DFinscr_estadual": {
+      "source_column": "FOR_NUM_INSC_ESTADUAL",
+      "comparador": "ie_equivalente",
+      "normalizar": true
+    },
+    "DFfisico_juridico": {
+      "source_column": "FOR_TIP",
+      "comparador": "default",
+      "condicao": {
+        "FOR_TIP": {
+          "0": "CPF",
+          "1": "CNPJ"
+        }
+      },
+      "normalizar": true
+    }
+  }
+}

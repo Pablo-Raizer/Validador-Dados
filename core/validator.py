@@ -189,7 +189,7 @@ comparadores = {
     "multiplos_codigos_todos_presentes": comparador_multiplos_codigos_todos_presentes,
 }
 
-# --- Lógica central ---
+# --- Funções auxiliares ---
 def aplicar_normalizadores(val, tipo):
     """Aplica o normalizador especificado, se existir."""
     if tipo in normalizadores:
@@ -216,33 +216,35 @@ def obter_valor_origem(linha_origem, regra_campo):
         else:
             return linha_origem.get(source_col)
 
+# --- Lógica principal ---
 def aplicar_regras(df_destino: pd.DataFrame, df_origem: pd.DataFrame, regras: dict) -> pd.DataFrame:
-    """Aplica todas as regras linha por linha entre origem e destino."""
+    """Aplica todas as regras linha por linha entre origem e destino, usando itertuples para performance e evitar erro de Series como bool."""
     registros = []
     pk_destino, pk_origem = regras["primary_key"]
     campos = regras["campos"]
     ordem_campos = list(campos.keys())
 
-    for _, linha_dest in df_destino.iterrows():
-        chave = linha_dest.get(pk_destino)
-        linha_ori = df_origem[df_origem[pk_origem] == chave]
+    # Converter df_origem em dict para acesso rápido por chave
+    origem_dict = df_origem.set_index(pk_origem).to_dict(orient='index')
 
-        if linha_ori.empty:
+    for linha_dest in df_destino.itertuples(index=False):
+        chave = getattr(linha_dest, pk_destino)
+        linha_ori = origem_dict.get(chave)
+
+        if linha_ori is None:
             for campo_dest in ordem_campos:
                 registros.append({
                     "CODIGO": chave,
                     "CAMPO": campo_dest.replace("DF", ""),
-                    "SQL": linha_dest.get(campo_dest),
+                    "SQL": getattr(linha_dest, campo_dest, None),
                     "ORIGEM": "NÃO ENCONTRADO",
                     "STATUS": "Faltando na origem"
                 })
             continue
 
-        linha_ori = linha_ori.iloc[0]
-
         for campo_dest in ordem_campos:
             regra_campo = campos[campo_dest]
-            val_sql = linha_dest.get(campo_dest)
+            val_sql = getattr(linha_dest, campo_dest, None)
             val_ori = obter_valor_origem(linha_ori, regra_campo)
             comparador_valor = regra_campo.get("comparador", "default")
             normalizar_flag = regra_campo.get("normalizar", False)
@@ -265,9 +267,16 @@ def aplicar_regras(df_destino: pd.DataFrame, df_origem: pd.DataFrame, regras: di
                 comp_func = comparadores.get(comp_nome)
                 if comp_func:
                     if comp_nome == "data_inativacao_logica":
-                        ok = comp_func(val_sql, linha_ori.get("ATIVO"))
+                        resultado = comp_func(val_sql, linha_ori.get("ATIVO"))
                     else:
-                        ok = comp_func(val_sql, val_ori)
+                        resultado = comp_func(val_sql, val_ori)
+
+                    # Se resultado for Series, usa all()
+                    if isinstance(resultado, pd.Series):
+                        ok = resultado.all()
+                    else:
+                        ok = bool(resultado)
+
                     if ok:
                         break
 

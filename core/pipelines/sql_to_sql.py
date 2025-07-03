@@ -55,8 +55,8 @@ def formatar_valor_exportacao(x, campo=None):
 
 class SQLToSQLPipeline:
     def __init__(self, json_file, source=None, target=None):
-        self.source = source or SQLServerConnector(**SQL_SERVER)
-        self.target = target or SQLServerConnector(**SQL_SERVER_2)
+        self.source = source or SQLServerConnector(SQL_SERVER)
+        self.target = target or SQLServerConnector(SQL_SERVER_2)
         self.planilha_id = "16u8KSsLNidNtlZ4daX2Vs-GALqgM7OvESHRpGB9VUI8"
 
         base_path = getattr(sys, '_MEIPASS', os.path.abspath("."))
