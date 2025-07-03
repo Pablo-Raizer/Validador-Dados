@@ -64,7 +64,7 @@ graph TD
     D --> E[Busca dados dos bancos]
     E --> F[Carrega regras do JSON]
     F --> G[Aplica normalizadores e comparadores]
-    G --> H[Valida campo a campo (validator.py)]
+    G --> H[Valida campo a campo - validator.py]
     H --> I[Exporta Google Sheets e .xlsx/.csv]
 ```
 
