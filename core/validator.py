@@ -80,21 +80,17 @@ def normalizar_codigos_multiplos(val):
 
 # --- Comparadores ---
 def comparador_default(val_sql, val_ori, **_):
-    """Compara direto (igualdade exata)."""
     return val_sql == val_ori
 
 def comparador_case_insensitive(val_sql, val_ori, **_):
-    """Compara ignorando maiúsculas/minúsculas."""
     return val_sql == val_ori
 
 def comparador_ie_equivalente(val_sql, val_ori, **_):
-    """Considera 'ISENTO' igual a campo vazio."""
     if val_sql == "ISENTO" and (val_ori is None or val_ori == ""):
         return True
     return val_sql == val_ori
 
 def comparador_data_sem_hora(val_sql, val_ori, **_):
-    """Compara só a parte da data (ignora hora)."""
     try:
         data_sql = val_sql.date() if hasattr(val_sql, 'date') else val_sql
         data_ori = val_ori.date() if hasattr(val_ori, 'date') else val_ori
@@ -103,31 +99,25 @@ def comparador_data_sem_hora(val_sql, val_ori, **_):
         return False
 
 def comparador_bool_sql_ativo(val_sql, val_ori, **_):
-    """Compara flags 'S' ou 'N'."""
     return val_sql == val_ori
 
 def comparador_bool_sql_peso_variavel(val_sql, val_ori, **_):
-    """Compara flag de peso variável."""
     return val_sql == val_ori
 
 def comparador_numero_string(val_sql, val_ori, **_):
-    """Compara números como string, eliminando zeros à esquerda."""
     val_sql_str = normalizar_numero(val_sql)
     val_ori_str = normalizar_numero(val_ori)
     return val_sql_str == val_ori_str
 
 def comparador_numero_null_igual_zero(val_sql, val_ori, **_):
-    """Compara números tratando null como zero."""
     return val_sql == val_ori
 
 def comparador_multiplos_codigos_todos_presentes(val_sql, val_ori, **_):
-    """Verifica se todos os códigos de origem existem no SQL."""
     set_sql = set(re.split(r'[;\s]+', str(val_sql).strip())) if val_sql else set()
     set_ori = set(re.split(r'[;\s]+', str(val_ori).strip())) if val_ori else set()
     return set_ori.issubset(set_sql)
 
 def comparador_decimal_tolerancia(val_sql, val_ori, **_):
-    """Compara decimais permitindo diferença de até 0.01."""
     try:
         d_sql = Decimal(str(val_sql))
         d_ori = Decimal(str(val_ori))
@@ -136,14 +126,13 @@ def comparador_decimal_tolerancia(val_sql, val_ori, **_):
         return str(val_sql).strip() == str(val_ori).strip()
 
 def comparador_data_inativacao_logica(val_sql, val_flag_ativo, **_):
-    """Valida se o inativo tem data e o ativo não."""
     if val_flag_ativo == 'S':
         return pd.isna(val_sql) or val_sql > pd.Timestamp.now()
     if val_flag_ativo == 'N':
         return pd.notna(val_sql)
     return False
 
-# --- Mapeamento de comparador x normalizador ---
+# --- Mapeamento comparador -> normalizador padrão ---
 normalizador_padrao_por_comparador = {
     "default": "valor",
     "case_insensitive": "case_insensitive",
@@ -191,13 +180,11 @@ comparadores = {
 
 # --- Funções auxiliares ---
 def aplicar_normalizadores(val, tipo):
-    """Aplica o normalizador especificado, se existir."""
     if tipo in normalizadores:
         return normalizadores[tipo](val)
     return val
 
 def obter_valor_origem(linha_origem, regra_campo):
-    """Obtém valor da origem, aplicando lógica condicional se necessário."""
     if "condicao" in regra_campo:
         for cond_coluna, valores in regra_campo["condicao"].items():
             valor_cond = linha_origem.get(cond_coluna)
@@ -218,20 +205,16 @@ def obter_valor_origem(linha_origem, regra_campo):
 
 # --- Lógica principal ---
 def aplicar_regras(df_destino: pd.DataFrame, df_origem: pd.DataFrame, regras: dict) -> pd.DataFrame:
-    """Aplica todas as regras linha por linha entre origem e destino, usando itertuples para performance e evitar erro de Series como bool."""
     registros = []
     pk_destino, pk_origem = regras["primary_key"]
     campos = regras["campos"]
     ordem_campos = list(campos.keys())
 
-    # Converter df_origem em dict para acesso rápido por chave
-    origem_dict = df_origem.set_index(pk_origem).to_dict(orient='index')
-
     for linha_dest in df_destino.itertuples(index=False):
         chave = getattr(linha_dest, pk_destino)
-        linha_ori = origem_dict.get(chave)
+        linha_ori_df = df_origem[df_origem[pk_origem] == chave]
 
-        if linha_ori is None:
+        if linha_ori_df.empty:
             for campo_dest in ordem_campos:
                 registros.append({
                     "CODIGO": chave,
@@ -241,6 +224,8 @@ def aplicar_regras(df_destino: pd.DataFrame, df_origem: pd.DataFrame, regras: di
                     "STATUS": "Faltando na origem"
                 })
             continue
+
+        linha_ori = linha_ori_df.iloc[0]
 
         for campo_dest in ordem_campos:
             regra_campo = campos[campo_dest]
@@ -270,13 +255,10 @@ def aplicar_regras(df_destino: pd.DataFrame, df_origem: pd.DataFrame, regras: di
                         resultado = comp_func(val_sql, linha_ori.get("ATIVO"))
                     else:
                         resultado = comp_func(val_sql, val_ori)
-
-                    # Se resultado for Series, usa all()
                     if isinstance(resultado, pd.Series):
                         ok = resultado.all()
                     else:
                         ok = bool(resultado)
-
                     if ok:
                         break
 
@@ -291,21 +273,20 @@ def aplicar_regras(df_destino: pd.DataFrame, df_origem: pd.DataFrame, regras: di
     return pd.DataFrame(registros, columns=["CODIGO", "CAMPO", "SQL", "ORIGEM", "STATUS"])
 
 def aplicar_regras_central(conn_source, conn_target, regras: dict) -> pd.DataFrame:
-    """Aplica validação central, com ou sem múltiplas tabelas."""
     if "tabelas" not in regras:
-        colunas, dados_origem = conn_source.fetch_data(regras["source_query"])
-        colunas_dest, dados_destino = conn_target.fetch_data(regras["target_query"])
-        df_origem = pd.DataFrame(dados_origem, columns=colunas)
-        df_destino = pd.DataFrame(dados_destino, columns=colunas_dest)
-        return aplicar_regras(df_destino, df_origem, regras)
+        col_src, dados_src = conn_source.fetch_data(regras["source_query"])
+        col_dst, dados_dst = conn_target.fetch_data(regras["target_query"])
+        df_src = pd.DataFrame(dados_src, columns=col_src)
+        df_dst = pd.DataFrame(dados_dst, columns=col_dst)
+        return aplicar_regras(df_dst, df_src, regras)
 
     resultados = []
-    for _, regras_tabela in regras["tabelas"].items():
-        colunas, dados_origem = conn_source.fetch_data(regras_tabela["source_query"])
-        colunas_dest, dados_destino = conn_target.fetch_data(regras_tabela["target_query"])
-        df_origem = pd.DataFrame(dados_origem, columns=colunas)
-        df_destino = pd.DataFrame(dados_destino, columns=colunas_dest)
-        parcial = aplicar_regras(df_destino, df_origem, regras_tabela)
+    for _, regras_tab in regras["tabelas"].items():
+        col_src, dados_src = conn_source.fetch_data(regras_tab["source_query"])
+        col_dst, dados_dst = conn_target.fetch_data(regras_tab["target_query"])
+        df_src = pd.DataFrame(dados_src, columns=col_src)
+        df_dst = pd.DataFrame(dados_dst, columns=col_dst)
+        parcial = aplicar_regras(df_dst, df_src, regras_tab)
         resultados.append(parcial)
 
     return pd.concat(resultados, ignore_index=True)

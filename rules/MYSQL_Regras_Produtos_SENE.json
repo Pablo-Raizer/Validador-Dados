@@ -82,7 +82,7 @@
     },
     "DFcod_genero": {
       "source_column": "ID_GENERO",
-      "comparador": "default",
+      "comparador": "numero_string",
       "normalizar": true
     },
     "DFquantidade_Atual": {
