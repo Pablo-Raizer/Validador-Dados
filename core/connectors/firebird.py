@@ -4,7 +4,7 @@ from core.connectors.base_connector import BaseConnector
 class FirebirdConnector(BaseConnector):
     def __init__(self, config: dict):
         self.config = config
-        self.database = config.get("database")  # <-- adicionado para nome do banco
+        self.database = config.get("database")
 
     def connect(self):
         return fdb.connect(
