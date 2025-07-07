@@ -19,11 +19,12 @@ Desenvolvida para acelerar a validação de dados durante implantações, com fo
 
 ## 🧠 Alterações e Melhorias Recentes
 
-- ✅ Ordenação inteligente dos resultados (com base na chave primária e ordem dos campos no JSON)
-- ✅ Separação total entre normalização e comparação
-- ✅ Aplicação automática de normalizadores definidos nas regras
-- ✅ Interface dinâmica para escolha de pipeline + JSON
-- ✅ Suporte à geração de regras via planilha
+- ✅ Separação total da lógica de normalização e comparação em módulos independentes (`normalizadores.py` e `comparadores.py`)
+- ✅ `validator.py` refatorado e modular, mais limpo, estável e testável
+- ✅ Mapeamento automático entre comparadores e seus normalizadores padrão
+- ✅ Pronto para expansão com novos tipos de comparação e validação
+- ✅ Interface dinâmica com log ao vivo e seleção de regras/pipeline
+- ✅ Exportação padronizada e compatível com Google Sheets e Excel
 
 ---
 
@@ -43,7 +44,9 @@ validacao_dados/
 │   ├── connectors/
 │   ├── pipelines/
 │   ├── reports/
-│   └── validator.py
+│   ├── validator.py
+│   ├── normalizadores.py
+│   └── comparadores.py
 ├── data/
 │   ├── input/
 │   └── output/
@@ -76,7 +79,9 @@ graph TD
 |------------------------------------|------------------------------------------------------------------------|
 | `run_validador.bat`                | Inicia a interface gráfica                                             |
 | `interface.py`                     | Interface visual (seleção de pipeline, JSON, log)                     |
-| `main.py`                          | Execução via terminal                                                  |
+| `main.py`                          | Execução via terminal                                      
+| `core/normalizadores.py`           | Centraliza todas as funções de normalização de dados                 |
+| `core/comparadores.py`             | Centraliza os comparadores usados para validação campo a campo       |
 | `core/validator.py`                | Lógica de validação linha a linha                                      |
 | `core/pipelines/*.py`              | Pipelines por tipo de origem                                           |
 | `core/connectors/*.py`             | Conectores com Firebird, MySQL, SQL Server                            |
@@ -109,10 +114,8 @@ Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 # Instale as dependências
 pip install -r requirements.txt
-```
 
-Para desativar o ambiente:
-```powershell
+# Para desativar o ambiente:
 deactivate
 ```
 
