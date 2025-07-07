@@ -116,7 +116,7 @@ Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
 pip install -r requirements.txt
 ```
 
-Para desativar o ambiente:
+# Para desativar o ambiente:
 ```powershell
 deactivate
 ```
