@@ -7,7 +7,7 @@
   "source_table": "VPESSOA",
   "target_table": "TBFORNECEDOR",
   "source_query": "SELECT CHAVEPES, ATIVO, CADASTRO, NOME, CPF, CNPJ, TIPOFISCAL, IE, RG, LIMITECREDITO, COALESCE(LOGRADOURO, '') || ', ' || COALESCE(NUMERO, '') || CASE WHEN COMPLEMENTO IS NOT NULL AND TRIM(COMPLEMENTO) <> '' THEN ' - ' || COMPLEMENTO ELSE '' END || ', ' || COALESCE(BAIRRO, '') || ', ' || COALESCE(MUNICIPIO, '') || ' - ' || COALESCE(UE, '') || ', CEP: ' || COALESCE(CEP, '') AS ENDERECOCOMPLETO FROM VPESSOA WHERE FORNECEDOR = 'S'",
-  "target_query": "select f.DFcod_fornecedor, f.DFdata_inativacao, f.DFdata_cadastro, f.DFnome, f.DFcgc, f.DFinscr_estadual, f.DFcarteira_identidade, f.DFfisico_juridico, ISNULL(l.DFdescricao, '') + ', ' + ISNULL(f.DFcomplemento_endereco, '') + ', ' + ISNULL(b.DFdescricao, '') + ', ' + ISNULL(lo.DFdescricao, '') + ' - ' + ISNULL(lo.DFcod_uf, '') + ', CEP: ' + ISNULL(CAST(cl.DFcod_cep AS VARCHAR), '') AS DFendereco_completo from TBfornecedor f left join TBcep_logradouro cl on cl.DFid_cep_logradouro = f.DFid_cep_logradouro left join TBlogradouro l on l.DFid_logradouro = cl.DFid_logradouro left join TBbairro b on b.DFid_bairro = l.DFid_bairro left join TBlocalidade lo on lo.DFcod_localidade = b.DFcod_localidade",
+  "target_query": "select f.DFcod_fornecedor, f.DFdata_inativacao, f.DFdata_cadastro, f.DFnome, f.DFcgc, f.DFinscr_estadual, f.DFfisico_juridico, ISNULL(l.DFdescricao, '') + ', ' + ISNULL(f.DFcomplemento_endereco, '') + ', ' + ISNULL(b.DFdescricao, '') + ', ' + ISNULL(lo.DFdescricao, '') + ' - ' + ISNULL(lo.DFcod_uf, '') + ', CEP: ' + ISNULL(CAST(cl.DFcod_cep AS VARCHAR), '') AS DFendereco_completo from TBfornecedor f left join TBcep_logradouro cl on cl.DFid_cep_logradouro = f.DFid_cep_logradouro left join TBlogradouro l on l.DFid_logradouro = cl.DFid_logradouro left join TBbairro b on b.DFid_bairro = l.DFid_bairro left join TBlocalidade lo on lo.DFcod_localidade = b.DFcod_localidade",
   "campos": {
     "DFcod_fornecedor": {
       "source_column": "CHAVEPES",
@@ -47,11 +47,6 @@
     "DFinscr_estadual": {
       "source_column": "IE",
       "comparador": "ie_equivalente",
-      "normalizar": true
-    },
-    "DFcarteira_identidade": {
-      "source_column": "RG",
-      "comparador": "default",
       "normalizar": true
     },
     "DFfisico_juridico": {

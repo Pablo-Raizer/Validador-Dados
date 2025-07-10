@@ -1,0 +1,54 @@
+{
+  "entidade": "Cliente",
+  "primary_key": [
+    "DFcod_cliente",
+    "CLI_SEQ"
+  ],
+  "source_table": "ECF_CLIENTE",
+  "target_table": "TBCLIENTE",
+  "source_query": "SELECT * FROM ECF_CLIENTE",
+  "target_query": "SELECT * FROM TBCLIENTE",
+  "campos": {
+    "DFcod_cliente": {
+      "source_column": "CLI_SEQ",
+      "comparador": "default",
+      "normalizar": true
+    },
+    "DFdata_inativacao": {
+      "source_column": "CLI_STATUS",
+      "comparador": "data_inativacao_logica,numero_null_igual_zero",
+      "normalizar": false
+    },
+    "DFdata_cadastro": {
+      "source_column": "CLI_DAT_CAD",
+      "comparador": "data_sem_hora",
+      "normalizar": true
+    },
+    "DFnome": {
+      "source_column": "CLI_NOM",
+      "comparador": "default",
+      "observacao": "Compara nome ignorando espaços extras",
+      "normalizar": true
+    },
+    "DFcnpj_cpf": {
+      "source_column": "CLI_NUM_CPF_CNPJ",
+      "comparador": "default,numero_null_igual_zero",
+      "normalizar": true
+    },
+    "DFinscr_estadual": {
+      "source_column": "CLI_NUM_INSC_ESTADUAL",
+      "comparador": "ie_equivalente",
+      "normalizar": true
+    },
+    "DFfisico_juridico": {
+      "source_column": "CLI_TIP_PESSOA",
+      "comparador": "default",
+      "normalizar": true
+    },
+    "DFlimite_credito": {
+      "source_column": "CLI_VAL_LIM_CRE",
+      "comparador": "numero_decimal_aproximado_2",
+      "normalizar": true
+    }
+  }
+}

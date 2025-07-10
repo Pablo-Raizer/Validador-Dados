@@ -86,8 +86,85 @@ class SQLToSQLPipeline:
         print(">>> Iniciando validacao com pipeline: sql_to_sql")
         print(f">>> Usando regras: {os.path.basename(self.regra_path)}")
 
+        print("Carregando regras de validacao...")
         regras = self.carregar_regras()
+        
+        print("Buscando dados da origem...")
+        if "tabelas" in regras:
+            primeira = next(iter(regras["tabelas"].values()))
+            source_query = primeira.get("source_query")
+            target_query = primeira.get("target_query")
+        else:
+            source_query = regras.get("source_query")
+            target_query = regras.get("target_query")
+
+        df_origem = self.converter_para_dataframe(self.source.fetch_data(source_query))
+        print(f"Total de registros encontrados na origem: {len(df_origem)}")
+
+        print("Buscando dados do destino...")
+        df_destino = self.converter_para_dataframe(self.target.fetch_data(target_query))
+        print(f"Total de registros encontrados no destino: {len(df_destino)}")
+
+        total_processar = len(df_origem)
+        print(f"Total de registros: {total_processar}")
+
+        print("Iniciando aplicacao das regras...")
+        df_resultado = self.aplicar_regras_com_progresso(regras, total_processar)
+
+        print("Processando resultados...")
+        self.processar_resultados_com_progresso(df_resultado, regras)
+
+        print("Salvando resultados...")
+        if "tabelas" in regras:
+            primeira = next(iter(regras["tabelas"].values()))
+            campos_atuais = primeira.get("campos", {})
+        else:
+            campos_atuais = regras.get("campos", {})
+
+        self.salvar_resultados(df_resultado, regras, df_origem, df_destino, campos_atuais)
+
+        print("Validacao concluida com sucesso!")
+
+        # ✅ RESUMO FINAL NO CONSOLE
+        try:
+            df_export = df_resultado.copy()
+            total = df_export[df_export["STATUS"] != ""].shape[0]
+            ok = df_export[df_export["STATUS"] == "OK"].shape[0]
+            divs = df_export[df_export["STATUS"] == "Divergente"].shape[0]
+            erros = df_export[df_export["STATUS"] == "Erro"].shape[0]
+
+            print("=" * 60)
+            print("RESUMO ESTATISTICO DA VALIDACAO")
+            print("=" * 60)
+            print(f"Total de validacoes : {total}")
+            print(f"Registros OK         : {ok}")
+            print(f"Divergencias         : {divs}")
+            print(f"Erros                : {erros}")
+            print("=" * 60)
+        except Exception as e:
+            print(f"[AVISO] Falha ao imprimir resumo final: {repr(e)}")
+
+        entidade = regras.get("entidade", "Desconhecido").capitalize()
+        return {
+            "resultado": df_resultado,
+            "entidade": entidade,
+            "aba": entidade
+        }
+
+    def aplicar_regras_com_progresso(self, regras, total_registros):
+        print("Aplicando regras de validacao...")
         df_resultado = aplicar_regras_central(self.source, self.target, regras)
+        if len(df_resultado) > 0:
+            print(f"Processados {len(df_resultado)} registros de validacao")
+        return df_resultado
+
+    def processar_resultados_com_progresso(self, df_resultado, regras):
+        total_linhas = len(df_resultado)
+        if total_linhas == 0:
+            print("Nenhum resultado para processar")
+            return
+
+        print(f"Processando {total_linhas} linhas de resultado...")
 
         if "tabelas" in regras:
             primeira = next(iter(regras["tabelas"].values()))
@@ -95,6 +172,7 @@ class SQLToSQLPipeline:
         else:
             campos_atuais = regras.get("campos", {})
 
+        print("Ordenando resultados por codigo...")
         try:
             df_resultado["CODIGO_ORD"] = df_resultado["CODIGO"].apply(lambda x: int(str(x).strip()))
         except:
@@ -105,23 +183,12 @@ class SQLToSQLPipeline:
             lambda x: ordem_campos.index(x) if x in ordem_campos else 999
         )
 
+        print("Aplicando ordenacao final...")
         df_resultado.sort_values(by=["CODIGO_ORD", "__ordem_campo__"], inplace=True)
         df_resultado.drop(columns=["CODIGO_ORD", "__ordem_campo__"], inplace=True)
         df_resultado.reset_index(drop=True, inplace=True)
 
-        if "tabelas" in regras:
-            primeira = next(iter(regras["tabelas"].values()))
-            source_query = primeira.get("source_query")
-            target_query = primeira.get("target_query")
-        else:
-            source_query = regras.get("source_query")
-            target_query = regras.get("target_query")
-
-        df_origem = self.converter_para_dataframe(self.source.fetch_data(source_query))
-        df_destino = self.converter_para_dataframe(self.target.fetch_data(target_query))
-
-        self.salvar_resultados(df_resultado, regras, df_origem, df_destino, campos_atuais)
-        return df_resultado
+        print(f"Processamento concluido - {total_linhas} registros organizados")
 
     def salvar_resultados(self, df, regras, df_origem, df_destino, campos_atuais):
         entidade = regras.get("entidade", "Desconhecido").capitalize()
@@ -131,15 +198,22 @@ class SQLToSQLPipeline:
         output_excel = os.path.join(output_dir, f"validacao_{entidade.lower()}.xlsx")
         output_csv = os.path.join(output_dir, f"validacao_{entidade.lower()}.csv")
 
+        print(f"Preparando dados para exportacao ({len(df)} registros)...")
         df_export = df.copy()
 
-        for i, row in df_export.iterrows():
-            campo = row["CAMPO"]
-            for col in ["SQL", "ORIGEM"]:
-                val = row[col]
-                if row["STATUS"] == "OK":
-                    df_export.at[i, col] = formatar_valor_exportacao(val, campo=campo)
+        total_formatacao = len(df_export)
+        if total_formatacao > 0:
+            print(f"Formatando valores para exportacao...")
+            for i, row in df_export.iterrows():
+                if (i + 1) % 100 == 0 or i + 1 == total_formatacao:
+                    print(f"Formatando registro {i + 1} de {total_formatacao}")
+                campo = row["CAMPO"]
+                for col in ["SQL", "ORIGEM"]:
+                    val = row[col]
+                    if row["STATUS"] == "OK":
+                        df_export.at[i, col] = formatar_valor_exportacao(val, campo=campo)
 
+        print("Calculando estatisticas...")
         col_status_sql = None
         for nome_dest, props in campos_atuais.items():
             if nome_dest.lower() in ["dfativo", "dfativo_inativo", "ativo", "ativo_inativo"]:
@@ -167,6 +241,7 @@ class SQLToSQLPipeline:
         status_ativos = "OK" if ativos_sql == ativos_ori else "Divergente"
         status_inativos = "OK" if inativos_sql == inativos_ori else "Divergente"
 
+        print("Adicionando resumo estatistico...")
         resumo = pd.DataFrame([
             {"CODIGO": "", "CAMPO": "", "SQL": "", "ORIGEM": "", "STATUS": ""},
             {"CODIGO": "", "CAMPO": f"=== RESUMO {entidade.upper()} ===", "SQL": "", "ORIGEM": "", "STATUS": ""},
@@ -178,18 +253,21 @@ class SQLToSQLPipeline:
 
         df_export = pd.concat([df_export, resumo], ignore_index=True)
 
+        print("Salvando arquivo Excel...")
         try:
             df_export.to_excel(output_excel, index=False, engine='openpyxl')
             print(f"[OK] Excel salvo em: {os.path.abspath(output_excel)}")
         except Exception as e:
             print(f"[ERRO] Falha ao salvar Excel: {repr(e)}")
 
+        print("Salvando arquivo CSV...")
         try:
             df_export.to_csv(output_csv, index=False, encoding='utf-8-sig')
             print(f"[OK] CSV salvo em: {os.path.abspath(output_csv)}")
         except Exception as e:
             print(f"[ERRO] Falha ao salvar CSV: {repr(e)}")
 
+        print("Exportando para Google Sheets...")
         try:
             aba = entidade
             reporter = GoogleSheetsReporter(self.planilha_id)
@@ -197,6 +275,8 @@ class SQLToSQLPipeline:
             print(f"[OK] Exportado para Google Sheets na aba '{aba}' com sucesso.")
         except Exception as e:
             print(f"[ERRO] Falha ao exportar para Google Sheets: {repr(e)}")
+
+        print("Todos os arquivos foram salvos com sucesso!")
 
 
 def executar(json_file):

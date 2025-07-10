@@ -1,0 +1,54 @@
+{
+  "entidade": "Cliente",
+  "primary_key": [
+    "DFcod_cliente",
+    "CODIGOCLI"
+  ],
+  "source_table": "clientes",
+  "target_table": "TBCLIENTE",
+  "source_query": "SELECT * FROM clientes WHERE TIPO = 'C'",
+  "target_query": "SELECT * FROM TBCLIENTE",
+  "campos": {
+    "DFcod_cliente": {
+      "source_column": "CODIGOCLI",
+      "comparador": "default",
+      "normalizar": true
+    },
+    "DFdata_inativacao": {
+      "source_column": "ATIVO",
+      "comparador": "data_inativacao_logica",
+      "normalizar": false
+    },
+    "DFdata_cadastro": {
+      "source_column": "CADASTRADO",
+      "comparador": "data_sem_hora",
+      "normalizar": true
+    },
+    "DFnome": {
+      "source_column": "RAZAO",
+      "comparador": "default",
+      "observacao": "Compara nome ignorando espaços extras",
+      "normalizar": true
+    },
+    "DFcnpj_cpf": {
+      "source_column": "CPFCGC",
+      "comparador": "numero_string",
+      "normalizar": true
+    },
+    "DFinscr_estadual": {
+      "source_column": "IDENINSC",
+      "comparador": "ie_equivalente",
+      "normalizar": true
+    },
+    "DFfisico_juridico": {
+      "source_column": "PESSOA",
+      "comparador": "default",
+      "normalizar": true
+    },
+    "DFlimite_credito": {
+      "source_column": "LIMITE_CREDITO",
+      "comparador": "numero_decimal_aproximado_2",
+      "normalizar": true
+    }
+  }
+}

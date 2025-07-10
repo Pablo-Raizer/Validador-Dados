@@ -1,4 +1,4 @@
-fdb==2.0.3
+﻿fdb==2.0.3
 pyodbc==4.0.39
 sqlalchemy==2.0.25
 pandas==2.1.4
@@ -8,3 +8,5 @@ oauth2client==4.1.3        # Obsoleto, mas necessário se ainda for usado em alg
 rich==13.7.0
 mysql-connector-python==9.1.0
 openpyxl==3.1.2
+colorlog==6.8.0            # Para logs coloridos no terminal
+matplotlib==3.7.1
