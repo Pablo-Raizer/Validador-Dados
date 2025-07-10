@@ -1,0 +1,109 @@
+{
+  "entidade": "Produto",
+  "primary_key": [
+    "DFcod_item_estoque",
+    "PRO_SEQ"
+  ],
+  "source_table": "ECF_PRODUTO",
+  "target_table": "TBitem_estoque",
+  "source_query": "SELECT P.PRO_SEQ, P.PRO_DSC_COMPL, P.PRO_STATUS, P.PRO_DAT_CAD, P.UNI_MED_SEQ, C.CET_COD, CF.CFI_COD, P.PRO_CST_PIS_SAI, P.PRO_CST_COFINS_SAI, P.PRO_CST_PIS_ENT, P.PRO_CST_COFINS_ENT, P.PRO_TIPO, PP.PRO_VAL_ULT_CUSTO, PP.PRO_VAL_ULT_COMPRA, PP.PRO_PRC_MED_CUSTO, PP.PRO_PRC_UNIT, STRING_AGG(P.PRO_COD_BARRA, ';') AS PRO_COD_BARRA FROM ECF_PRODUTO P LEFT JOIN ECF_CEST C ON C.CET_SEQ = P.CET_SEQ LEFT JOIN ECF_CLASSIFICACAO_FISCAL CF ON CF.CFI_SEQ = P.CFI_SEQ LEFT JOIN ECF_PRECO_PRODUTO PP ON PP.PRO_SEQ = P.PRO_SEQ GROUP BY P.PRO_SEQ, P.PRO_DSC_COMPL, P.PRO_STATUS, P.PRO_DAT_CAD, P.UNI_MED_SEQ, C.CET_COD, CF.CFI_COD, P.PRO_CST_PIS_SAI, P.PRO_CST_COFINS_SAI, P.PRO_CST_PIS_ENT, P.PRO_CST_COFINS_ENT, P.PRO_TIPO, PP.PRO_VAL_ULT_CUSTO, PP.PRO_VAL_ULT_COMPRA, PP.PRO_PRC_MED_CUSTO, PP.PRO_PRC_UNIT",
+  "target_query": "SELECT i.DFcod_item_estoque, i.DFdescricao, i.DFativo_inativo, i.DFdata_cadastro, i.DFpeso_variavel, a.DFcod_cest, a.DFcod_classificacao_fiscal, a.DFcod_cst_pis, a.DFcod_cst_cofins, a.DFcod_cst_pis_entrada, a.DFcod_cst_cofins_entrada, a.DFcod_tipo_item, preco.DFcusto_real, preco.DFcusto_real_ce, preco.DFcusto_contabil, preco.DFcusto_medio, preco.DFpreco_venda, estoque.DFquantidade_Atual, unidade.DFsigla_unidade_edi, codigo.DFcodigo_barra FROM TBitem_estoque i LEFT JOIN TBitem_estoque_atacado_varejo a ON a.DFcod_item_estoque_atacado_varejo = i.DFcod_item_estoque LEFT JOIN TBnatureza_receita_pis_cofins n ON a.DFid_natureza_receita_pis_cofins = n.DFid_natureza_receita_pis_cofins LEFT JOIN (SELECT uie.DFcod_item_estoque, MAX(uiep.DFcusto_real) AS DFcusto_real, MAX(uiep.DFcusto_real_ce) AS DFcusto_real_ce, MAX(uiep.DFcusto_contabil) AS DFcusto_contabil, MAX(uiep.DFcusto_medio) AS DFcusto_medio, MAX(uiep.DFpreco_venda) AS DFpreco_venda FROM TBunidade_item_estoque uie LEFT JOIN TBunidade_item_estoque_preco uiep ON uiep.DFid_unidade_item_estoque = uie.DFid_unidade_item_estoque WHERE uiep.DFcod_empresa = 1 GROUP BY uie.DFcod_item_estoque) preco ON preco.DFcod_item_estoque = i.DFcod_item_estoque LEFT JOIN (SELECT uie.DFcod_item_estoque, MAX(u.DFsigla_unidade_edi) AS DFsigla_unidade_edi FROM TBunidade_item_estoque uie LEFT JOIN TBunidade u ON u.DFcod_unidade = uie.DFcod_unidade GROUP BY uie.DFcod_item_estoque) unidade ON unidade.DFcod_item_estoque = i.DFcod_item_estoque LEFT JOIN (SELECT uie.DFcod_item_estoque, STRING_AGG(cb.DFcodigo_barra, ';') AS DFcodigo_barra FROM TBunidade_item_estoque uie LEFT JOIN TBcodigo_barra cb ON cb.DFid_unidade_item_estoque = uie.DFid_unidade_item_estoque GROUP BY uie.DFcod_item_estoque) codigo ON codigo.DFcod_item_estoque = i.DFcod_item_estoque LEFT JOIN (SELECT uie.DFcod_item_estoque, MAX(he.DFquantidade_Atual) AS DFquantidade_Atual FROM TBunidade_item_estoque uie LEFT JOIN TBhistorico_estoque he ON he.DFid_unidade_item_estoque = uie.DFid_unidade_item_estoque WHERE he.DFcod_empresa = 1 GROUP BY uie.DFcod_item_estoque) estoque ON estoque.DFcod_item_estoque = i.DFcod_item_estoque WHERE i.DFcod_item_estoque IS NOT NULL AND unidade.DFsigla_unidade_edi IN ('KG','UN','LT','MT','SC')",
+  "campos": {
+    "DFcod_item_estoque": {
+      "source_column": "PRO_SEQ",
+      "comparador": "default",
+      "normalizar": true
+    },
+    "DFdescricao": {
+      "source_column": "PRO_DSC_COMPL",
+      "comparador": "default",
+      "observacao": "Compara nome ignorando espaços e caracteres especiais",
+      "normalizar": true
+    },
+    "DFativo_inativo": {
+      "source_column": "PRO_STATUS",
+      "comparador": "bool_sql_ativo",
+      "normalizar": true
+    },
+    "DFdata_cadastro": {
+      "source_column": "PRO_DAT_CAD",
+      "comparador": "data_sem_hora",
+      "normalizar": true
+    },
+    "DFpeso_variavel": {
+      "source_column": "UNI_MED_SEQ",
+      "comparador": "bool_sql_peso_variavel",
+      "normalizar": true
+    },
+    "DFcod_cest": {
+      "source_column": "CET_COD",
+      "comparador": "numero_string",
+      "normalizar": true
+    },
+    "DFcod_classificacao_fiscal": {
+      "source_column": "CFI_COD",
+      "comparador": "numero_string",
+      "normalizar": true
+    },
+    "DFcod_cst_pis": {
+      "source_column": "PRO_CST_PIS_SAI",
+      "comparador": "numero_string",
+      "normalizar": true
+    },
+    "DFcod_cst_cofins": {
+      "source_column": "PRO_CST_COFINS_SAI",
+      "comparador": "numero_string",
+      "normalizar": true
+    },
+    "DFcod_cst_pis_entrada": {
+      "source_column": "PRO_CST_PIS_ENT",
+      "comparador": "numero_string",
+      "normalizar": true
+    },
+    "DFcod_cst_cofins_entrada": {
+      "source_column": "PRO_CST_COFINS_ENT",
+      "comparador": "numero_string",
+      "normalizar": true
+    },
+    "DFcod_tipo_item": {
+      "source_column": "PRO_TIPO",
+      "comparador": "default",
+      "normalizar": true
+    },
+    "DFcusto_real": {
+      "source_column": "PRO_VAL_ULT_CUSTO",
+      "comparador": "decimal_tolerancia",
+      "normalizar": true
+    },
+    "DFcusto_real_ce": {
+      "source_column": "PRO_VAL_ULT_CUSTO",
+      "comparador": "decimal_tolerancia",
+      "normalizar": true
+    },
+    "DFcusto_contabil": {
+      "source_column": "PRO_VAL_ULT_COMPRA",
+      "comparador": "decimal_tolerancia",
+      "normalizar": true
+    },
+    "DFcusto_medio": {
+      "source_column": "PRO_PRC_MED_CUSTO",
+      "comparador": "decimal_tolerancia",
+      "normalizar": true
+    },
+    "DFpreco_venda": {
+      "source_column": "PRO_PRC_UNIT",
+      "comparador": "decimal_tolerancia",
+      "normalizar": true
+    },
+    "DFsigla_unidade_edi": {
+      "source_column": "UNI_MED_SEQ",
+      "comparador": "case_insensitive",
+      "normalizar": true
+    },
+    "DFcodigo_barra": {
+      "source_column": "PRO_COD_BARRA",
+      "comparador": "multiplos_codigos_todos_presentes",
+      "normalizar": true
+    }
+  }
+}

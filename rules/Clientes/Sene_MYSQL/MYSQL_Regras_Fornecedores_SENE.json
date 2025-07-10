@@ -1,0 +1,49 @@
+{
+  "entidade": "Fornecedor",
+  "primary_key": [
+    "DFcod_fornecedor",
+    "CODIGOCLI"
+  ],
+  "source_table": "clientes",
+  "target_table": "TBFORNECEDOR",
+  "source_query": "SELECT * FROM clientes WHERE TIPO in ('A','F')",
+  "target_query": "SELECT * FROM TBFORNECEDOR",
+  "campos": {
+    "DFcod_fornecedor": {
+      "source_column": "CODIGOCLI",
+      "comparador": "default",
+      "normalizar": true
+    },
+    "DFdata_inativacao": {
+      "source_column": "ATIVO",
+      "comparador": "data_inativacao_logica",
+      "normalizar": false
+    },
+    "DFdata_cadastro": {
+      "source_column": "CADASTRADO",
+      "comparador": "data_sem_hora",
+      "normalizar": true
+    },
+    "DFnome": {
+      "source_column": "RAZAO",
+      "comparador": "default",
+      "observacao": "Compara nome ignorando espaços extras",
+      "normalizar": true
+    },
+    "DFcgc": {
+      "source_column": "CPFCGC",
+      "comparador": "numero_string",
+      "normalizar": true
+    },
+    "DFinscr_estadual": {
+      "source_column": "IDENINSC",
+      "comparador": "ie_equivalente,numero_string",
+      "normalizar": true
+    },
+    "DFfisico_juridico": {
+      "source_column": "PESSOA",
+      "comparador": "default",
+      "normalizar": true
+    }
+  }
+}
