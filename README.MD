@@ -3,7 +3,7 @@
 <div align="center">
   <img src="assets/icone.ico" alt="Ícone do Validador" width="128"/>
   
-  **Ferramenta para validação automatizada de dados entre sistemas legados e ERP Director**
+  **Ferramenta para validação automatizada de dados entre sistemas legados e sistemas ERP**
   
   [![Python](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://www.python.org/)
   [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
@@ -14,7 +14,7 @@
 
 ## 📋 Sobre o Projeto
 
-O **Validador de Dados** é uma ferramenta desenvolvida para **acelerar e automatizar a validação de dados** durante implantações de ERP. Realiza comparações precisas entre sistemas legados (Firebird, MySQL, SQL Server) e o banco de destino SQL Server do ERP Director.
+O **Validador de Dados** é uma ferramenta desenvolvida para **acelerar e automatizar a validação de dados** durante implantações de ERP. Realiza comparações precisas entre sistemas legados (Firebird, MySQL, SQL Server) e o banco de destino SQL Server do ERP.
 
 ### 🎯 Objetivo Principal
 Garantir **consistência, agilidade e rastreabilidade** na migração de dados, reduzindo erros manuais e tempo de validação durante implantações.
