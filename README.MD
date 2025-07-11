@@ -498,9 +498,8 @@ Este projeto está sob a licença **MIT**. Veja o arquivo [LICENSE](LICENSE) par
 
 ## 🙏 Agradecimentos
 
-- **Equipe ERP Director** pelo suporte e feedback
+- **Analista José Ricardo Siqueira Júnior** - Equipe ERP Director pelo suporte
 - **Comunidade Python** pelas bibliotecas utilizadas
-- **Contribuidores** que ajudaram a melhorar o projeto
 
 ---
 
