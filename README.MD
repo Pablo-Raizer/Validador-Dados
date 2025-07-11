@@ -1,4 +1,4 @@
-# ✅ Validador de Dados - ERP Director
+# ✅ Validador de Dados
 
 <div align="center">
   <img src="assets/icone.ico" alt="Ícone do Validador" width="128"/>
@@ -14,7 +14,7 @@
 
 ## 📋 Sobre o Projeto
 
-O **Validador de Dados ERP Director** é uma ferramenta desenvolvida para **acelerar e automatizar a validação de dados** durante implantações de ERP. Realiza comparações precisas entre sistemas legados (Firebird, MySQL, SQL Server) e o banco de destino SQL Server do ERP Director.
+O **Validador de Dados** é uma ferramenta desenvolvida para **acelerar e automatizar a validação de dados** durante implantações de ERP. Realiza comparações precisas entre sistemas legados (Firebird, MySQL, SQL Server) e o banco de destino SQL Server do ERP Director.
 
 ### 🎯 Objetivo Principal
 Garantir **consistência, agilidade e rastreabilidade** na migração de dados, reduzindo erros manuais e tempo de validação durante implantações.
