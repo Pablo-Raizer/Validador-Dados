@@ -1,0 +1,33 @@
+{
+  "entidade": "Tributacao",
+  "primary_key": [
+    "DFcod_item_estoque",
+    "CHAVEPRO"
+  ],
+  "source_table": "VPRODUTO",
+  "target_table": "TBitem_cst_aliquota_icms_estado",
+  "source_query": "select CHAVEPRO, CODTRIBICMS, ALIQICMS, REDUCAOICMS from VPRODUTO",
+  "target_query": "select ie.DFcod_item_estoque, c.DFcod_tributacao_cst, caie.DFaliquota_icms, caie.DFpercentual_reducao from TBitem_cst_aliquota_icms_estado icaie left join TBitem_estoque ie on ie.DFcod_item_estoque = icaie.DFcod_item_estoque left join TBcst_aliquota_icms_estado caie on caie.Dfid_cst_aliquota_icms_estado = icaie.DFid_cst_aliquota_icms_estado left join TBcst c on c.DFid_cst = caie.DFid_cst left join TBaliquota_icms_estado aie on aie.DFid_aliquota_icms_estado = caie.DFid_aliquota_icms_estado where icaie.DFpessoa_fisica_juridica = 'F'\n",
+  "campos": {
+    "DFcod_item_estoque": {
+      "source_column": "CHAVEPRO",
+      "comparador": "default",
+      "normalizar": true
+    },
+    "DFcod_tributacao_cst": {
+      "source_column": "CODTRIBICMS",
+      "comparador": "numero_string",
+      "normalizar": true
+    },
+    "DFaliquota_icms": {
+      "source_column": "ALIQICMS",
+      "comparador": "aliquota_decimal_tolerante",
+      "normalizar": true
+    },
+    "DFpercentual_reducao": {
+      "source_column": "REDUCAOICMS",
+      "comparador": "aliquota_decimal_tolerante",
+      "normalizar": true
+    }
+  }
+}

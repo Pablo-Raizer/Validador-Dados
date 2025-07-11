@@ -10,6 +10,7 @@ from .normalizadores import (
     normalizar_bool_sql_peso_variavel,
     normalizar_numero_null_igual_zero,
     normalizar_codigos_multiplos,
+    normalizar_aliquota_percentual,  # 👈 adicionado aqui
 )
 from .comparadores import comparadores, normalizador_padrao_por_comparador
 
@@ -27,6 +28,7 @@ normalizadores = {
     "bool_sql_peso_variavel": normalizar_bool_sql_peso_variavel,
     "numero_null_igual_zero": normalizar_numero_null_igual_zero,
     "multiplos_codigos": normalizar_codigos_multiplos,
+    "aliquota_percentual": normalizar_aliquota_percentual,  # 👈 adicionado aqui
 }
 
 # --- Aplicadores ---

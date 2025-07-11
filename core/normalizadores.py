@@ -76,3 +76,20 @@ def normalizar_codigos_multiplos(val):
     codigos = set(re.split(r'[;\s]+', str(val).strip()))
     codigos = sorted(filter(None, codigos))
     return ";".join(codigos)
+
+def normalizar_aliquota_percentual(val):
+    """
+    Converte alíquotas em formatos como 180000 ou 1800 para decimal 18.0.
+    Ex: 180000 → 18.0000 ; 1800 → 18.00 ; 18 → 18.00
+    """
+    if pd.isna(val):
+        return Decimal("0.0")
+    try:
+        val = Decimal(str(val).strip())
+        if val >= 10000:
+            return val / Decimal("10000")  # 180000 → 18.0000
+        elif val >= 100:
+            return val / Decimal("100")    # 1800 → 18.00
+        return val
+    except:
+        return Decimal("0.0")

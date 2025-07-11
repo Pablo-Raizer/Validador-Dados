@@ -55,6 +55,12 @@ def comparador_data_inativacao_logica(val_sql, val_flag_ativo, **_):
     if val_flag_ativo == 'N':
         return pd.notna(val_sql)
     return False
+    
+def comparador_aliquota_decimal_tolerante(val_sql, val_ori, **_):
+    try:
+        return abs(val_sql - val_ori) <= Decimal("0.01")
+    except:
+        return False
 
 # Dicionário de comparadores disponíveis
 comparadores = {
@@ -71,6 +77,7 @@ comparadores = {
     "numero_decimal_aproximado_3": comparador_numero_null_igual_zero,
     "decimal_tolerancia": comparador_decimal_tolerancia,
     "multiplos_codigos_todos_presentes": comparador_multiplos_codigos_todos_presentes,
+    "aliquota_decimal_tolerante": comparador_aliquota_decimal_tolerante,
 }
 
 # Mapeamento comparador -> normalizador padrão
@@ -88,4 +95,5 @@ normalizador_padrao_por_comparador = {
     "numero_decimal_aproximado_3": "numero_null_igual_zero",
     "decimal_tolerancia": "numero_null_igual_zero",
     "multiplos_codigos_todos_presentes": "multiplos_codigos",
+    "aliquota_decimal_tolerante": "aliquota_percentual",
 }
